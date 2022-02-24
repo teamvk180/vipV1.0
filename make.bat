@@ -1,0 +1,1 @@
+g++ *.cpp -o vip.exe -std=c++11 -lstdc++ -g -Wall -Wextra 

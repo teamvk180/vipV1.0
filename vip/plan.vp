@@ -1,0 +1,98 @@
+# comment
+# syntax
+# action param1 , param2 ... , param N
+
+
+# include? is a checker function
+def include?  depends vip.objects 
+   first = self[0]
+   second = self [1]
+  if first.null? or second.null?
+     return false
+
+    else if typeof(first) == "string" and typeof(second) == "string" 
+           return vp.callN('string_match',self)
+    else if typeof(first) == "array" and typeof(second) == "string" or typeof(first) == "string" and typeof(second) == "array"
+        return vp.callN('array_match',self)
+    else
+        return false    
+  endif 
+  # include? must return
+  return false
+endf
+
+
+require "vip.basic"
+class vehicles 
+  color = [
+     'blue','red','green','yellow'
+  ]
+
+    def belognsTo(input) 
+      return (this.color.include? input)
+   endf
+
+end
+
+
+class bike  extends vehicles
+     public bike_name = ''
+     public battery = ''
+     public sale = ''
+
+  # constructor of class bike
+  def constructor(bike_name,battery,sale)
+      this.bike_name = bike_name
+      this.battery = battery
+      this.sale = sale
+  endf
+
+  # engine is a local variable 
+  def engine()
+     engine = bike_name + '.324'
+     return engine
+  endf
+
+  # breake of the system
+  def breake()
+    system.out.println("break applied")
+  endf 
+ 
+  # bell of the system
+  def bell()
+   system.out.println("bell applied")
+  endf
+
+  #battery is effective or not
+  def battery_ok()
+     if battery.include? 'ok' 
+          return true or false
+      else 
+          return false and true
+      endif
+  endf
+
+  def light()
+    if battery_ok() and true
+       system.out.println("light applied")
+    else
+       system.out.println("start engine")
+    endif
+  endf
+
+
+end
+
+ld = [
+      bike.new ("king","band","java"),
+      bike.new ("honda cbr",'ps32','good'),
+      bike.new ("yamaha facer 225",'3ieh','average'),
+      bike.new ('tvs city24','hipower32','bad'),
+   ]
+
+
+
+
+
+
+

@@ -1,0 +1,50 @@
+
+#
+#        String is a class in vip 
+#         not a data type or a std::class
+#
+
+class Program
+  public string _a_
+  public string _s_ = @"https://www.youtube.com/watch?v=lFTpCaNDNcc"
+  def main() 
+        vector<string> array
+        array.push_back("String 1")       
+        array.push_back("String 2")
+
+            while _a_.notEmpty? then
+              string dad = scanln("enter a value")
+                array.push_back(dad)
+                 _a_.flush()
+            endwhile
+
+        println(23+3*34 -34)
+        println()
+        printString("What's your name?")
+        println()
+        _s_ = scanln()
+        printString("Your name is: ")
+        printString(s)
+        println()
+
+        return void
+    endf
+end
+
+
+class jd
+    public string moj;
+    public string king;
+    public string java;
+    public string joj;
+    public string moki;
+    private string sin;
+ 
+    public def jd(string k,string j : (445+ 43)) #constructor
+     this.king = k;
+     this.java = j;
+     endf
+end
+
+
+
