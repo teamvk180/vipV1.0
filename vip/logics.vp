@@ -1,0 +1,24 @@
+#            how vip interpreter works
+#
+#
+#   unlike normal interpreters vip does'nt have an ast
+#
+# basic working principles
+#
+#  step 1 : lexing
+#
+#  during lexing if functions and classes found
+#  whole code block is pushed to an array
+# step 2 : runing
+#   rest of the code executed with the help of parsor and symtab
+# 
+# if a function call or class.object is called then
+#      that block is searched in interprers array
+#      if found then the block is lexed and go to run
+#      symbols are loaded to symtab with scope local
+#
+#
+# if code is full lexed the code block which are not used in current environment get removed from interpreters array
+# if a class is called after deleting the block then interpreter search class name in file path 
+#     if the file-name.vp found  then it is executed else throws an error
+#

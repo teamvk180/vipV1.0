@@ -1,0 +1,7 @@
+class Program 
+   int data;
+   def main()
+   
+      myfunc();
+    endf
+end 
