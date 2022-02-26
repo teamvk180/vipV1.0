@@ -378,7 +378,6 @@ std::string ClassExpr::evaluvate()
 #ifdef DEBUG
     std::cout << "evaluvating  class expr" << std::endl;
 #endif
-    g.add_class(this->class_name);
     std::string ram = "(decl-class.exe  ";
     ram += this->class_name + "(" + isEnd;
     ram += this->class_body->evaluvate();

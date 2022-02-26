@@ -1,0 +1,273 @@
+Expression *Parser::expr()
+{
+    Expression *t = nullptr;
+    if (isInvalid(currentToken.token_type))
+    {
+        cout << "expr " << endl;
+        return t;
+    }
+    else
+    {
+        BunddleExpr *l = new BunddleExpr();
+        l->expr_.push_back(this->parseExpr());
+        while (match(type::COMMA) || match(type::DOT))
+        {
+            if (match(type::COMMA))
+            {
+                next();
+            }
+
+            l->expr_.push_back(this->parseExpr());
+        }
+        return l;
+    }
+    return t;
+}
+
+Expression *Parser::parseExpr()
+{
+#ifdef DEBUG
+    std::cout << currentToken.lexeme << " >> type : " << (int)currentToken.token_type << "\tparseBooleanExpr" << std::endl;
+#endif
+    Expression *l = this->parseBooleanExpr();
+    l=nullptr;
+    while (match(type::AND) || match(type::OR))
+    {
+        ALExpr *j = new ALExpr();
+        j->op = currentToken.token_type;
+        next();
+        j->lhs = l;
+        j->lhs = this->parseBooleanExpr();
+    }
+    return l;
+}
+
+Expression *Parser::parseBooleanExpr()
+{
+    ALExpr *j = new ALExpr();
+    j =nullptr;
+    j->lhs = parseAdditiveExpr();
+    while (currentToken.token_type == type::LESS_THAN ||
+           currentToken.token_type == type::LESS_THAN_EQ ||
+           currentToken.token_type == type::GREATER_THAN ||
+           currentToken.token_type == type::GREATER_THAN_EQ ||
+           currentToken.token_type == type::EQUALS ||
+           currentToken.token_type == type::NOT_EQUAL)
+    {
+        j->op = currentToken.token_type;
+        next();
+        j->rhs = (parseAdditiveExpr());
+    }
+    return j;
+}
+
+//addition expr
+Expression *Parser::parseAdditiveExpr()
+{
+#ifdef DEBUG
+    std::cout << currentToken.lexeme << " >> type : " << (int)currentToken.token_type << "\tparseExpr+-" << std::endl;
+#endif
+    Expression *l = (this->parseTermExpr());
+     l=nullptr;
+    ALExpr *j = new ALExpr();
+    while (currentToken.token_type == type::PLUS || currentToken.token_type == type::MINUS)
+    {
+        j->op = currentToken.token_type;
+        next();
+        j->rhs = l;
+        j->lhs = (this->parseTermExpr());
+    }
+    return l;
+}
+//terminal
+Expression *Parser::parseTermExpr()
+{
+#ifdef DEBUG
+    std::cout << currentToken.lexeme << " >> type : " << (int)currentToken.token_type << "\tparseExpr Terminal" << std::endl;
+#endif
+    Expression *l = (this->parseFactorExpr());
+      l=nullptr;
+    while (currentToken.token_type == type::STAR || currentToken.token_type == type::SLASH)
+    {
+        ALExpr *j = new ALExpr();
+        j->op = currentToken.token_type;
+        j->lhs = l;
+        next();
+        j->rhs = (this->parseFactorExpr());
+    }
+    return l;
+}
+//factor
+Expression *Parser::parseFactorExpr()
+{
+#ifdef DEBUG
+    std::cout << currentToken.lexeme << " >> type : " << (int)currentToken.token_type << "\tparseExpr Factor" << std::endl;
+#endif
+    ALExpr *j = new ALExpr();
+      j=nullptr;
+    if (currentToken.token_type == type::MINUS)
+    {
+        next();
+        j->op = type::NEGATIVE_NUMBER;
+        j->lhs = (this->parsePositiveFactor());
+    }
+    else
+    {
+        j->rhs = (this->parsePositiveFactor());
+    }
+
+    return j;
+}
+
+//-var
+Expression *Parser::parsePositiveFactor()
+{
+#ifdef DEBUG
+    std::cout << currentToken.lexeme << " >> type : " << (int)currentToken.token_type << "\tparseExpr+ve factor" << std::endl;
+#endif
+    ALExpr *j = new ALExpr();
+     j= nullptr;
+    if (match(type::NOT))
+    {
+
+        j->op = type::NOT;
+        next();
+        j->lhs = (this->parsePositiveFactor());
+    }
+    else
+    {
+        j->lhs = parseNotFactor();
+    }
+    return j;
+}
+// static
+Expression *Parser::parseNotFactor()
+{
+#ifdef DEBUG
+    std::cout << currentToken.lexeme << " >> type : " << (int)currentToken.token_type << "\tparseExpr static" << std::endl;
+#endif
+    BunddleExpr *l = new BunddleExpr();
+      l= nullptr;
+    if (match(type::LPAR))
+    {
+        next();
+        l->expr_.push_back(this->parseExpr());
+        eval(type::RPAR, "expected ')'");
+    }
+    else if (match(type::L_SQ_BRACE))
+    {
+        l->expr_.push_back(this->parseArrayExpr());
+    }
+    else if (match(type::INT))
+    {
+        staticExpr *s = new staticExpr;
+        s->mToken = currentToken;
+        next();
+        l->expr_.push_back(s);
+    }
+    else if (match(type::FLOAT))
+    {
+        staticExpr *s = new staticExpr;
+        s->mToken = currentToken;
+        next();
+        l->expr_.push_back(s);
+    }
+    else if (match(type::STRING))
+    {
+        cout << "string detected" << endl;
+        staticExpr *s = new staticExpr;
+        s->mToken = currentToken;
+        next();
+        l->expr_.push_back(s);
+    }
+    else if (match(type::LINK))
+    {
+        cout << "LINK detected" << endl;
+        staticExpr *s = new staticExpr;
+        s->mToken = currentToken;
+        next();
+        l->expr_.push_back(s);
+    }
+    else if (match(type::TRUE))
+    {
+        staticExpr *s = new staticExpr;
+        s->mToken = currentToken;
+        next();
+        l->expr_.push_back(s);
+    }
+    else if (match(type::DOT))
+    {
+        //.expr
+        //eat .
+        next();
+        SelfExpr *s = new SelfExpr();
+        s->argument = this->expr();
+        l->expr_.push_back(s);
+    }
+    else if (match(type::DOUBLE_POINT))
+    {
+        staticExpr *s = new staticExpr;
+        s->mToken = currentToken;
+        next();
+        l->expr_.push_back(s);
+    }
+    else if (match(type::FALSE))
+    {
+        staticExpr *s = new staticExpr;
+        s->mToken = currentToken;
+        next();
+
+        l->expr_.push_back(s);
+    }
+    else if (match(type::THIS))
+    {
+        staticExpr *s = new staticExpr;
+        s->mToken = currentToken;
+        next();
+        l->expr_.push_back(s);
+    }
+    else if (match(type::VOID))
+    {
+        staticExpr *s = new staticExpr;
+        s->mToken = currentToken;
+        next();
+
+        l->expr_.push_back(s);
+    }
+    else if (match(type::IDENTIFIER))
+    {
+        std::string id = currentToken.lexeme;
+        next();
+        if (match(type::IDENTIFIER))
+        {
+            l->expr_.push_back(parseClassInstance(id));
+        }
+        else if (match(type::ASSIGN) || match(type::L_SQ_BRACE))
+        {
+            l->expr_.push_back(parseAssign(id));
+        }
+        else if (match(type::LPAR) || match(type::DOT))
+        {
+            l->expr_.push_back(parseCallStatement(id));
+        }
+        else if (match(type::RPAR) || match(type::R_SQ_BRACE) || match(type::SEMICOLON) || match(type::LBRACE) || match(type::COMMA))
+        {
+            //function(id);
+            l->expr_.push_back(varCall(id));
+        }
+        else if (isValid(currentToken.token_type))
+        {
+            //p+q or p-q or p*q or p/q
+            l->expr_.push_back(varCall(id));
+        }
+        else
+        {
+            Error("syntax error : or [ or ( or . expected");
+        }
+    }
+    else
+    {
+        Error("invalid symbol " + currentToken.lexeme);
+    }
+    return l;
+}

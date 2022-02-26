@@ -1,5 +1,5 @@
 def program()
- println ("vip works !")
+ println("vip works !")
 endf
 
 program()

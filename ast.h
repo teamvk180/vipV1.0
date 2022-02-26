@@ -1,7 +1,6 @@
 #ifndef AST_H
 #define AST_H
 #include "Token.h"
-#include "analyzer.hpp" //checker and generator.
 #include "Exception.h"
 #include <string>
 #include <map>
@@ -10,7 +9,6 @@
 #include <vector>
 #include <queue>
 #define DEBUG 1
-#define  reconf(i,j,k) return (to_string(i) + to_string(j) + to_string(k))
 using namespace std;
 
 class Expression;
@@ -19,7 +17,6 @@ class AST
 public:
     AST() = default;
     int context_type;
-    analyzer g;
     std::string result = "<VIP>";
     virtual std::string evaluvate() = 0;
     virtual ~AST(){};
