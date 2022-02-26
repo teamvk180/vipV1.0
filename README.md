@@ -3,11 +3,13 @@
 
 ```ruby
 class Program 
-   string data ="hellow world";
+     data ="hellow world";
    def main()
       println(data)
-      int data1 = 32 * 21 - 221
+      data1 = 32 * 21 - 221
+      if data1 then 
       println("result is "+data1)
+      endif
     endf
 end 
 

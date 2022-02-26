@@ -241,6 +241,7 @@ Expression *Parser::parseWhileExpr()
     //eat while
     eval(type::WHILE, "while expected ");
     Expression *condition = this->expr();
+
     BlockExpr *body = this->parseBlock(type::ENDWHILE," end while ");
     whileExpr *while_node = new whileExpr();
     while_node->condition = (condition);
@@ -414,6 +415,10 @@ bool Parser::isValid(type t)
 bool Parser::isInvalid(type t)
 {
     return (t == type::RPAR ||
+             t== type::ENDIF||
+             t== type::ENDF||
+             t == type::END||
+             t == type::THEN ||
             t == type::RBRACE ||
             t == type ::R_SQ_BRACE ||
             t == type::COMMA || //, is optional
@@ -462,119 +467,27 @@ Expression *Parser::parseExpr()
 #ifdef DEBUG
     std::cout << currentToken.lexeme << " >> type : " << (int)currentToken.token_type << "\tparseBooleanExpr" << std::endl;
 #endif
-    Expression *l = this->parseBooleanExpr();
-    while (match(type::AND) || match(type::OR))
+    Expression *l = this->parseTermExpr();
+    l=nullptr;
+    while (isValid(currentToken.token_type))
     {
         ALExpr *j = new ALExpr();
         j->op = currentToken.token_type;
         next();
         j->lhs = l;
-        j->lhs = this->parseBooleanExpr();
+        j->rhs = this->parseTermExpr();
     }
     return l;
 }
 
-Expression *Parser::parseBooleanExpr()
-{
-    ALExpr *j = new ALExpr();
-    j->lhs = parseAdditiveExpr();
-    while (currentToken.token_type == type::LESS_THAN ||
-           currentToken.token_type == type::LESS_THAN_EQ ||
-           currentToken.token_type == type::GREATER_THAN ||
-           currentToken.token_type == type::GREATER_THAN_EQ ||
-           currentToken.token_type == type::EQUALS ||
-           currentToken.token_type == type::NOT_EQUAL)
-    {
-        j->op = currentToken.token_type;
-        next();
-        j->rhs = (parseAdditiveExpr());
-    }
-    return j;
-}
-
-//addition expr
-Expression *Parser::parseAdditiveExpr()
-{
-#ifdef DEBUG
-    std::cout << currentToken.lexeme << " >> type : " << (int)currentToken.token_type << "\tparseExpr+-" << std::endl;
-#endif
-    Expression *l = (this->parseTermExpr());
-    ALExpr *j = new ALExpr();
-    while (currentToken.token_type == type::PLUS || currentToken.token_type == type::MINUS)
-    {
-        j->op = currentToken.token_type;
-        next();
-        j->rhs = l;
-        j->lhs = (this->parseTermExpr());
-    }
-    return l;
-}
-//terminal
-Expression *Parser::parseTermExpr()
-{
-#ifdef DEBUG
-    std::cout << currentToken.lexeme << " >> type : " << (int)currentToken.token_type << "\tparseExpr Terminal" << std::endl;
-#endif
-    Expression *l = (this->parseFactorExpr());
-    while (currentToken.token_type == type::STAR || currentToken.token_type == type::SLASH)
-    {
-        ALExpr *j = new ALExpr();
-        j->op = currentToken.token_type;
-        j->lhs = l;
-        next();
-        j->rhs = (this->parseFactorExpr());
-    }
-    return l;
-}
-//factor
-Expression *Parser::parseFactorExpr()
-{
-#ifdef DEBUG
-    std::cout << currentToken.lexeme << " >> type : " << (int)currentToken.token_type << "\tparseExpr Factor" << std::endl;
-#endif
-    ALExpr *j = new ALExpr();
-    if (currentToken.token_type == type::MINUS)
-    {
-        next();
-        j->op = type::NEGATIVE_NUMBER;
-        j->lhs = (this->parsePositiveFactor());
-    }
-    else
-    {
-        j->rhs = (this->parsePositiveFactor());
-    }
-
-    return j;
-}
-
-//-var
-Expression *Parser::parsePositiveFactor()
-{
-#ifdef DEBUG
-    std::cout << currentToken.lexeme << " >> type : " << (int)currentToken.token_type << "\tparseExpr+ve factor" << std::endl;
-#endif
-    ALExpr *j = new ALExpr();
-    if (match(type::NOT))
-    {
-
-        j->op = type::NOT;
-        next();
-        j->lhs = (this->parsePositiveFactor());
-    }
-    else
-    {
-        j->lhs = parseNotFactor();
-    }
-    return j;
-}
 // static
-Expression *Parser::parseNotFactor()
+Expression *Parser::parseTermExpr()
 {
 #ifdef DEBUG
     std::cout << currentToken.lexeme << " >> type : " << (int)currentToken.token_type << "\tparseExpr static" << std::endl;
 #endif
     BunddleExpr *l = new BunddleExpr();
-
+      l= nullptr;
     if (match(type::LPAR))
     {
         next();
